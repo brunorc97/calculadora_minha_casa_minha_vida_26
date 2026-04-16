@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora Minha Casa Minha Vida</title>
+  <style>
+    :root {
+      --bg: #06111d;
+      --bg-2: #0a1726;
+      --bg-3: #0f2236;
+      --panel: rgba(10, 22, 37, 0.82);
+      --panel-strong: rgba(13, 28, 45, 0.95);
+      --panel-soft: rgba(16, 35, 55, 0.72);
+      --text: #ecf7ff;
+      --muted: #93b0c3;
+      --line: rgba(109, 188, 231, 0.18);
+      --line-strong: rgba(140, 220, 255, 0.26);
+      --accent: #28d5ff;
+      --accent-2: #6ef0ff;
+      --accent-strong: #adf6ff;
+      --accent-soft: rgba(40, 213, 255, 0.12);
+      --warn: #ffbf78;
+      --warn-soft: rgba(255, 191, 120, 0.12);
+      --shadow: 0 30px 80px rgba(0, 0, 0, 0.34);
+      --shadow-soft: 0 14px 36px rgba(2, 8, 16, 0.24);
+      --radius: 30px;
+      --radius-sm: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Manrope", "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(40, 213, 255, 0.18), transparent 22%),
+        radial-gradient(circle at 88% 10%, rgba(0, 156, 255, 0.16), transparent 18%),
+        radial-gradient(circle at 50% 100%, rgba(40, 213, 255, 0.1), transparent 24%),
+        linear-gradient(140deg, var(--bg) 0%, var(--bg-2) 46%, var(--bg-3) 100%);
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: radial-gradient(circle at center, black 55%, transparent 95%);
+      pointer-events: none;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 34px auto;
+      display: grid;
+      gap: 26px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero,
+    .card {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 24%),
+        var(--panel);
+      border: 1px solid rgba(115, 210, 255, 0.14);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero {
+      padding: 38px;
+      display: grid;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: auto -40px -65px auto;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(40, 213, 255, 0.3), transparent 66%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(120deg, rgba(255, 255, 255, 0.04), transparent 40%),
+        linear-gradient(0deg, transparent, rgba(255, 255, 255, 0.02));
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--accent-strong);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      line-height: 0.96;
+      letter-spacing: -0.04em;
+      max-width: 12ch;
+    }
+
+    .hero p,
+    .note,
+    .hint,
+    .muted {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .hero p {
+      max-width: 62ch;
+      line-height: 1.6;
+    }
+
+    .layout {
+      display: grid;
+      gap: 26px;
+      grid-template-columns: minmax(320px, 420px) 1fr;
+      align-items: start;
+    }
+
+    .card {
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(173, 246, 255, 0.3), transparent);
+    }
+
+    .card h2,
+    .card h3 {
+      margin: 0 0 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .form-section {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 90%),
+        var(--panel-soft);
+      border: 1px solid rgba(109, 188, 231, 0.14);
+      box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .form-section-head {
+      display: grid;
+      gap: 4px;
+      padding: 2px 2px 0;
+    }
+
+    .form-section-head strong {
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .form-section-head span {
+      color: var(--accent-strong);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .field {
+      display: grid;
+      gap: 9px;
+      padding: 16px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.01));
+      border: 1px solid rgba(109, 188, 231, 0.12);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    label {
+      font-weight: 700;
+      font-size: 0.94rem;
+      color: #f4fbff;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid rgba(109, 188, 231, 0.18);
+      background: linear-gradient(180deg, rgba(19, 40, 61, 0.98), rgba(13, 28, 45, 0.98));
+      color: var(--text);
+      border-radius: 18px;
+      padding: 15px 16px;
+      font-size: 1rem;
+      outline: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    input::placeholder {
+      color: #6f8ba0;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(40, 213, 255, 0.14), var(--shadow-soft);
+      transform: translateY(-1px);
+    }
+
+    .inline {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .pill-row,
+    .stats-grid,
+    .result-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .pill-row {
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    }
+
+    .pill {
+      border-radius: 26px;
+      padding: 18px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 70%),
+        var(--panel-strong);
+      border: 1px solid rgba(109, 188, 231, 0.16);
+      box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .pill strong,
+    .stat strong,
+    .result strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 1.08rem;
+      letter-spacing: -0.02em;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      margin-top: 18px;
+    }
+
+    .stat,
+    .result {
+      border-radius: 26px;
+      padding: 19px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 80%),
+        var(--panel-strong);
+      border: 1px solid rgba(109, 188, 231, 0.14);
+      box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .result-grid {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-top: 18px;
+    }
+
+    .alert {
+      border-radius: 24px;
+      padding: 18px 20px;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      border: 1px solid rgba(40, 213, 255, 0.18);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .alert.warn {
+      background: var(--warn-soft);
+      color: var(--warn);
+      border-color: rgba(178, 95, 43, 0.18);
+    }
+
+    .legend {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .legend-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 15px 16px;
+      border-radius: 22px;
+      border: 1px solid rgba(109, 188, 231, 0.13);
+      background: rgba(12, 27, 43, 0.72);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      font-weight: 700;
+      font-size: 0.92rem;
+      border: 1px solid rgba(40, 213, 255, 0.2);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 18px;
+      margin-bottom: 10px;
+    }
+
+    .section-title span {
+      color: var(--accent-strong);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .footer-note {
+      font-size: 0.92rem;
+      line-height: 1.65;
+      padding: 16px 18px;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(109, 188, 231, 0.1);
+    }
+
+    .celebration {
+      margin-top: 22px;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(109, 188, 231, 0.14);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 75%),
+        var(--panel-strong);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      padding: 22px;
+    }
+
+    .celebration img {
+      display: block;
+      width: min(100%, 588px);
+      height: 336px;
+      object-fit: contain;
+      margin: 0 auto;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .celebration p {
+      margin: 0;
+      padding: 16px 6px 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: center;
+    }
+
+    @media (max-width: 920px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: min(100% - 20px, 1180px);
+        margin: 16px auto 28px;
+      }
+
+      .hero,
+      .card {
+        padding: 18px;
+        border-radius: 24px;
+      }
+
+      .inline {
+        grid-template-columns: 1fr;
+      }
+
+      .field,
+      .form-section,
+      .pill,
+      .stat,
+      .result,
+      .legend-item,
+      .alert,
+      .footer-note,
+      .celebration {
+        border-radius: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <p class="eyebrow">Simulador Habitacional</p>
+      <h1>Calculadora Minha Casa Minha Vida</h1>
+      <p>
+        Simule a faixa de renda, a taxa estimada do programa, o prazo do financiamento
+        e a parcela pelo sistema <strong>SAC</strong> ou <strong>Price</strong>.
+      </p>
+      <p class="note">
+        Baseado nas quatro faixas atuais de renda familiar mensal informadas por você, com renda bruta
+        familiar de até R$ 13.000,00.
+      </p>
+    </section>
+
+    <section class="layout">
+      <div class="card">
+        <h2>Dados da simulação</h2>
+        <p class="muted">Preencha os campos abaixo para recalcular automaticamente.</p>
+
+        <form class="form-grid" id="calculator-form">
+          <section class="form-section">
+            <div class="form-section-head">
+              <span>Perfil</span>
+              <strong>Quem vai financiar</strong>
+            </div>
+            <div class="field">
+              <label for="income">Renda bruta familiar mensal</label>
+              <input id="income" type="text" inputmode="decimal" value="4500" />
+              <p class="hint">Some os ganhos de todas as pessoas que entram no financiamento.</p>
+            </div>
+            <div class="field">
+              <label for="borrowerAge">Idade do proponente principal</label>
+              <input id="borrowerAge" type="number" min="18" max="80" step="1" value="35" />
+              <p class="hint">Usada para estimar o seguro MIP. A CAIXA calcula isso com regras mais detalhadas.</p>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <div class="form-section-head">
+              <span>Imóvel</span>
+              <strong>Dados do imóvel</strong>
+            </div>
+            <div class="field">
+              <label for="propertyValue">Valor do imóvel</label>
+              <input id="propertyValue" type="text" inputmode="decimal" value="320000" />
+            </div>
+            <div class="field">
+              <label for="region">Região do imóvel</label>
+              <select id="region">
+                <option value="OTHER">Sul, Sudeste ou Centro-Oeste</option>
+                <option value="N_NE">Norte ou Nordeste</option>
+              </select>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <div class="form-section-head">
+              <span>FGTS</span>
+              <strong>Entrada e benefício</strong>
+            </div>
+            <div class="field">
+              <label for="cashDownPayment">Entrada em dinheiro</label>
+              <input id="cashDownPayment" type="text" inputmode="decimal" value="30000" />
+              <p class="hint">Reserva própria sem contar o saldo do FGTS.</p>
+            </div>
+            <div class="field">
+              <label for="hasFgts">Tem FGTS disponível?</label>
+              <select id="hasFgts">
+                <option value="" selected>Selecione</option>
+                <option value="no">Não</option>
+                <option value="yes">Sim</option>
+              </select>
+            </div>
+            <div class="field" id="fgtsBalanceField" hidden>
+              <label for="fgtsBalance">Saldo do FGTS disponível</label>
+              <input id="fgtsBalance" type="text" inputmode="decimal" value="0" />
+              <p class="hint">Pode ser usado na entrada, amortização ou redução de parcela, se houver enquadramento.</p>
+            </div>
+            <div class="field">
+              <label for="cotista">É elegível ao Pró-Cotista?</label>
+              <select id="cotista">
+                <option value="no">Não</option>
+                <option value="yes">Sim, tenho 3+ anos de trabalho com FGTS</option>
+              </select>
+              <p class="hint">Ter saldo de FGTS não ativa sozinho a taxa menor. O Pró-Cotista é uma condição separada.</p>
+            </div>
+            <div class="field">
+              <label for="downPayment">Entrada total considerada</label>
+              <input id="downPayment" type="text" inputmode="decimal" value="64000" />
+              <p class="hint">Calculada automaticamente como dinheiro + FGTS. Você pode editar, mas nunca abaixo de 20% nesta simulação.</p>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <div class="form-section-head">
+              <span>Condições</span>
+              <strong>Prazo do financiamento</strong>
+            </div>
+            <div class="inline">
+              <div class="field">
+                <label for="termYears">Prazo em anos</label>
+                <input id="termYears" type="number" min="1" max="35" step="1" value="30" />
+              </div>
+
+              <div class="field">
+                <label for="amortization">Sistema de amortização</label>
+                <select id="amortization">
+                  <option value="PRICE">Price</option>
+                  <option value="SAC">SAC</option>
+                </select>
+              </div>
+            </div>
+          </section>
+        </form>
+
+        <div class="legend" id="bandLegend"></div>
+      </div>
+
+      <div class="card">
+        <div class="pill-row">
+          <div class="pill">
+            <span class="muted">Faixa enquadrada</span>
+            <strong id="bandName">-</strong>
+          </div>
+          <div class="pill">
+            <span class="muted">Prazo total</span>
+            <strong id="termLabel">-</strong>
+          </div>
+          <div class="pill">
+            <span class="muted">Teto do imóvel</span>
+            <strong id="propertyCap">-</strong>
+          </div>
+        </div>
+
+        <div id="mainAlert" class="alert" style="margin-top: 18px;"></div>
+
+        <div class="section-title">
+          <h3>Taxas</h3>
+          <span>Nominal e efetiva</span>
+        </div>
+        <div class="stats-grid">
+          <div class="stat">
+            <span class="muted">Juro nominal anual</span>
+            <strong id="annualRate">-</strong>
+          </div>
+          <div class="stat">
+            <span class="muted">Juro nominal mensal</span>
+            <strong id="nominalMonthlyRate">-</strong>
+          </div>
+          <div class="stat">
+            <span class="muted">Juro efetivo anual</span>
+            <strong id="effectiveAnnualRate">-</strong>
+          </div>
+          <div class="stat">
+            <span class="muted">Juro efetivo mensal</span>
+            <strong id="effectiveMonthlyRate">-</strong>
+          </div>
+          <div class="stat">
+            <span class="muted">Valor financiado</span>
+            <strong id="financedValue">-</strong>
+          </div>
+          <div class="stat">
+            <span class="muted">Percentual de entrada</span>
+            <strong id="downPaymentPercent">-</strong>
+          </div>
+          <div class="stat">
+            <span class="muted">FGTS usado na entrada</span>
+            <strong id="fgtsUsed">-</strong>
+          </div>
+          <div class="stat">
+            <span class="muted">Dinheiro exigido fora do FGTS</span>
+            <strong id="cashNeeded">-</strong>
+          </div>
+          <div class="stat">
+            <span class="muted">Comprometimento da renda</span>
+            <strong id="incomeCommitment">-</strong>
+          </div>
+          <div class="stat">
+            <span class="muted">Seguro mensal estimado</span>
+            <strong id="estimatedInsurance">-</strong>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h3>Parcelas</h3>
+          <span>Resumo da simulação</span>
+        </div>
+        <div class="result-grid">
+          <div class="result">
+            <span class="muted">Parcela inicial</span>
+            <strong id="firstInstallment">-</strong>
+          </div>
+          <div class="result">
+            <span class="muted">Parcela final</span>
+            <strong id="lastInstallment">-</strong>
+          </div>
+          <div class="result">
+            <span class="muted">Parcela média</span>
+            <strong id="averageInstallment">-</strong>
+          </div>
+          <div class="result">
+            <span class="muted">Total com juros</span>
+            <strong id="totalPaid">-</strong>
+          </div>
+          <div class="result">
+            <span class="muted">Parcela inicial com seguros</span>
+            <strong id="firstInstallmentWithInsurance">-</strong>
+          </div>
+          <div class="result">
+            <span class="muted">Parcela média com seguros</span>
+            <strong id="averageInstallmentWithInsurance">-</strong>
+          </div>
+        </div>
+
+        <div style="margin-top: 18px;">
+          <span class="tag" id="systemTag">Sistema: Price</span>
+        </div>
+
+        <p class="footer-note muted" style="margin-top: 18px;">
+          Esta simulação é informativa. Em 2026, a Faixa 4/Classe Média vai até R$ 13 mil e teto do imóvel
+          de R$ 600 mil. O uso do FGTS segue sujeito às regras da CAIXA, enquadramento do imóvel e análise de crédito.
+          Os seguros MIP e DFI exibidos aqui são estimativas simplificadas.
+        </p>
+
+        <div class="celebration">
+          <img
+            src="https://media.giphy.com/media/eOe7ZpHgbqzSpwAkbR/giphy.gif"
+            alt="Animação comemorativa após o cálculo"
+          />
+          <p>Resumo calculado. Revise as taxas, a entrada mínima e o sistema escolhido.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
